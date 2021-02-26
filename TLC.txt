@@ -1,0 +1,173 @@
+`timescale 1ns / 1ps
+
+module c1(input clk,rst,output reg [3:0] count,output reg [2:0]N,S,W,E);
+reg [5:0] state;
+  
+ parameter s0 = 6'b000001;
+ parameter s1 = 6'b000010;
+ parameter s2 = 6'b000100;
+ parameter s3 = 6'b001000;
+ parameter s4 = 6'b010000;
+ parameter s5 = 6'b100000;
+ 
+
+ parameter sec15 = 4'd14;
+ parameter sec3 = 4'd2;
+ 
+ always @(posedge clk)
+ 
+ if(rst == 1)
+ begin
+ state <= s0;
+ count <= 0;
+ end
+
+else 
+     case(state)
+  s0 : if(count < sec15)
+        begin
+		  state <= s0;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s1;
+		  count <= 0;
+		  end
+		  
+  s1 : if(count < sec3)
+        begin
+		  state <= s1;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s2;
+		  count <= 0;
+		  end
+		  
+  s2 : if(count < sec3)
+        begin
+		  state <= s2;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s3;
+		  count <= 0;
+		  end
+		  
+  s3 : if(count < sec15)
+        begin
+		  state <= s3;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s4;
+		  count <= 0;
+		  end	
+ 
+ s4 : if(count < sec3)
+        begin
+		  state <= s4;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s5;
+		  count <= 0;
+		  end	
+		  
+  s5 : if(count < sec3)
+        begin
+		  state <= s5;
+		  count <= count+1;
+		  end
+		  else 
+		  begin
+		  state <= s0;
+		  count <= 0;
+		end
+   default state <= s0;
+	endcase
+	
+	always @(*)
+     begin
+         case (state)
+         s0 :
+                begin
+                    N = 3'b001;
+                    S = 3'b001;
+                    W = 3'b100;
+                    E = 3'b100;
+                end
+	s1 :
+                begin
+                    N = 3'b010;
+                    S = 3'b010;
+                    W = 3'b100;
+                    E = 3'b100;
+                end 
+					 
+	s2:
+                begin
+                    N = 3'b100;
+                    S = 3'b100;
+                    W = 3'b100;
+                    E = 3'b100;
+                end 
+					 
+	s3 :
+                begin
+                    N = 3'b100;
+                    S = 3'b100;
+                    W = 3'b001;
+                    E = 3'b001;
+                end 
+					 
+	 s4 :
+                begin
+                    N = 3'b100;
+                    S = 3'b100;
+                    W = 3'b010;
+                    E = 3'b010;
+                end 
+					 
+	s5 :
+                begin
+                    N = 3'b100;
+                    S = 3'b100;
+                    W = 3'b100;
+                    E = 3'b100;
+                end
+            endcase 
+     end 
+endmodule
+
+
+
+
+module tcl_tb;
+ 
+reg clk,rst;
+wire [3:0] count;
+wire [2:0]N,S,E,W;
+
+c1 uut(clk,rst,count,N,S,E,W);
+
+initial
+begin
+clk=1;
+ forever #5 clk=~clk;
+ end
+ 
+initial
+ begin
+  rst=1'b1;
+  #15;
+  rst=1'b0;
+  #1000;
+  $stop;
+ end
+endmodule
